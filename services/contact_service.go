@@ -12,6 +12,7 @@ import (
 	"api-contact-form/models"
 	"api-contact-form/repositories"
 	"api-contact-form/requests"
+	"errors"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -56,6 +57,16 @@ func (s *contactService) CreateContact(req *requests.ContactRequest) (*models.Co
 		return nil, err
 	}
 
+	// Check if there's existing identical contact.
+	existingContact, err := s.repository.FindByEmail(req.Email)
+	if err != nil {
+		return nil, err // Handle the error properly
+	}
+
+	if existingContact != nil {
+		return nil, errors.New("contact with the same email already exists")
+	}
+
 	// Map request to Contact model
 	contact := models.Contact{
 		FullName: req.Name,
@@ -65,7 +76,7 @@ func (s *contactService) CreateContact(req *requests.ContactRequest) (*models.Co
 	}
 
 	// Persist the contact using the repository
-	err := s.repository.Create(&contact)
+	err = s.repository.Create(&contact)
 	return &contact, err
 }
 

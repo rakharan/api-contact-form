@@ -23,6 +23,8 @@ type ContactRepository interface {
 	FindAll() ([]models.Contact, error)
 	// FindByID retrieves a contact by its ID, ensuring it is not deleted.
 	FindByID(id uint) (*models.Contact, error)
+	// FindByEmail retrieves a contact by its Email, ensuring it is not deleted.
+	FindByEmail(email string) (*models.Contact, error)
 	// Update modifies an existing contact in the database.
 	Update(contact *models.Contact) error
 	// Delete marks a contact as deleted in the database.
@@ -58,6 +60,14 @@ func (r *contactRepository) FindAll() ([]models.Contact, error) {
 func (r *contactRepository) FindByID(id uint) (*models.Contact, error) {
 	var contact models.Contact
 	err := r.db.Where("id = ? AND deleted_at = ?", id, "0000-00-00 00:00:00").First(&contact).Error
+	return &contact, err
+}
+
+// FindByEmail retrieves a contact by its Email, ensuring it is not deleted.
+// It returns the contact and an error if the contact is not found or the operation fails.
+func (r *contactRepository) FindByEmail(email string) (*models.Contact, error) {
+	var contact models.Contact
+	err := r.db.Where("email_address = ? AND deleted_at = ?", email, "0000-00-00 00:00:00").First(&contact).Error
 	return &contact, err
 }
 
