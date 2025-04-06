@@ -68,6 +68,9 @@ func (r *contactRepository) FindByID(id uint) (*models.Contact, error) {
 func (r *contactRepository) FindByEmail(email string) (*models.Contact, error) {
 	var contact models.Contact
 	err := r.db.Where("email_address = ? AND deleted_at = ?", email, "0000-00-00 00:00:00").First(&contact).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
 	return &contact, err
 }
 
